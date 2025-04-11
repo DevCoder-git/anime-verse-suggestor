@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				anime: {
+					purple: '#6A0DAD',
+					blue: '#7DF9FF',
+					pink: '#FFB6C1',
+					dark: '#1A103B',
+					light: '#F8F7FC'
 				}
 			},
 			borderRadius: {
@@ -84,11 +92,28 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' },
+				},
+				'pulse-light': {
+					'0%, 100%': { opacity: '0.85' },
+					'50%': { opacity: '1' },
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 6s ease-in-out infinite',
+				'pulse-light': 'pulse-light 4s ease-in-out infinite'
+			},
+			fontFamily: {
+				'exo': ['Exo 2', 'sans-serif'],
+			},
+			backgroundImage: {
+				'anime-gradient': 'linear-gradient(135deg, #6A0DAD 0%, #7DF9FF 100%)',
+				'anime-card': 'linear-gradient(135deg, rgba(106, 13, 173, 0.1) 0%, rgba(125, 249, 255, 0.1) 100%)',
 			}
 		}
 	},
