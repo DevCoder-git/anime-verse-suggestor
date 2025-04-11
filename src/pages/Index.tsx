@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import AnimeGrid from '@/components/AnimeGrid';
 import TrendingSection from '@/components/TrendingSection';
+import AnimeCard from '@/components/AnimeCard';
 import { Anime } from '@/services/types';
 import { fetchAnimeList, searchAnimeByQuery } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
