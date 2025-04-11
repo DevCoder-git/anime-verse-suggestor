@@ -1,132 +1,175 @@
 
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAnimeById, getUserRating, rateAnime } from '@/services/api';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RecommendationWidget from '@/components/RecommendationWidget';
-import { getAnimeById } from '@/services/animeData';
+import RatingStars from '@/components/RatingStars';
+import WatchlistButton from '@/components/WatchlistButton';
+import CommentSection from '@/components/CommentSection';
 import { Badge } from '@/components/ui/badge';
-import { Star, Calendar, Film, Users, Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/context/AuthContext';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
 
 const AnimeDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const { id } = useParams();
   const animeId = parseInt(id || '0');
-  const anime = getAnimeById(animeId);
-  
-  useEffect(() => {
-    if (!anime) {
-      navigate('/not-found');
+  const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: anime, isLoading } = useQuery({
+    queryKey: ['anime', animeId],
+    queryFn: () => fetchAnimeById(animeId),
+    enabled: !!animeId,
+  });
+
+  const { data: userRating } = useQuery({
+    queryKey: ['userRating', animeId],
+    queryFn: () => getUserRating(animeId),
+    enabled: !!animeId && isAuthenticated
+  });
+
+  const rateMutation = useMutation({
+    mutationFn: (score: number) => rateAnime(animeId, score),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userRating', animeId] });
+      toast({
+        title: "Rating Submitted",
+        description: "Your rating has been saved",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to submit your rating",
+        variant: "destructive"
+      });
     }
-  }, [anime, navigate]);
-  
-  const handleAddToFavorites = () => {
-    toast({
-      title: "Added to favorites",
-      description: `${anime?.title} has been added to your favorites.`,
-    });
+  });
+
+  const handleRatingChange = (rating: number) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Login Required",
+        description: "Please login to rate anime",
+        variant: "destructive"
+      });
+      return;
+    }
+    rateMutation.mutate(rating);
   };
-  
-  if (!anime) {
-    return null;
+
+  if (isLoading || !anime) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow px-6 py-8 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-anime-purple"></div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
-  
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       
-      <main className="flex-grow">
-        <div 
-          className="w-full h-64 md:h-80 bg-cover bg-center relative"
-          style={{ 
-            backgroundImage: `url(${anime.image})`,
-            backgroundPosition: 'center 25%',
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-background"></div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-6 -mt-32 relative z-10">
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="w-48 md:w-64 flex-shrink-0 mx-auto md:mx-0">
-              <img 
-                src={anime.image} 
-                alt={anime.title} 
-                className="w-full h-auto rounded-md shadow-lg border-4 border-background"
-              />
+      <main className="flex-grow px-6 py-8 max-w-7xl mx-auto w-full">
+        {/* Hero section */}
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 mb-10">
+          {/* Left column - Image & quick info */}
+          <div className="space-y-4">
+            <div className="rounded-lg overflow-hidden shadow-lg">
+              <img src={anime.image} alt={anime.title} className="w-full h-auto object-cover" />
             </div>
             
-            <div className="flex-grow">
-              <div className="bg-card p-6 rounded-lg shadow-sm">
-                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                  <h1 className="text-3xl md:text-4xl font-bold">{anime.title}</h1>
-                  <div className="flex items-center gap-1 text-lg font-semibold bg-muted/60 px-3 py-1 rounded-md">
-                    <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                    <span>{anime.rating}</span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {anime.genres.map((genre, index) => (
-                    <Badge key={index} className="bg-anime-purple/80 hover:bg-anime-purple text-white">
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                  <div className="flex flex-col items-center p-3 bg-muted/40 rounded-md">
-                    <Film className="h-5 w-5 text-anime-purple mb-1" />
+            <Card>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Type</span>
                     <span className="font-medium">{anime.type}</span>
                   </div>
-                  
-                  <div className="flex flex-col items-center p-3 bg-muted/40 rounded-md">
-                    <Calendar className="h-5 w-5 text-anime-purple mb-1" />
-                    <span className="text-sm text-muted-foreground">Year</span>
-                    <span className="font-medium">{anime.year}</span>
-                  </div>
-                  
-                  <div className="flex flex-col items-center p-3 bg-muted/40 rounded-md">
-                    <span className="font-bold text-anime-purple mb-1">#</span>
+                  <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Episodes</span>
                     <span className="font-medium">{anime.episodes}</span>
                   </div>
-                  
-                  <div className="flex flex-col items-center p-3 bg-muted/40 rounded-md">
-                    <Users className="h-5 w-5 text-anime-purple mb-1" />
-                    <span className="text-sm text-muted-foreground">Studios</span>
-                    <span className="font-medium truncate max-w-full">
-                      {anime.studios.join(", ")}
-                    </span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Year</span>
+                    <span className="font-medium">{anime.year}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Season</span>
+                    <span className="font-medium">{anime.season}</span>
                   </div>
                 </div>
-                
-                <div className="mb-6">
-                  <h3 className="font-semibold mb-2 text-lg">Synopsis</h3>
-                  <p className="text-muted-foreground">{anime.synopsis}</p>
-                </div>
-                
-                <Button 
-                  onClick={handleAddToFavorites}
-                  className="bg-anime-pink hover:bg-anime-pink/90 text-foreground"
-                >
-                  <Heart className="mr-2 h-4 w-4" />
-                  Add to Favorites
-                </Button>
-              </div>
+              </CardContent>
+            </Card>
+            
+            <div className="flex flex-col space-y-2">
+              <WatchlistButton animeId={anime.id} variant="default" />
             </div>
           </div>
           
-          <div className="mt-12 mb-8">
-            <h2 className="text-2xl font-semibold mb-6">You May Also Like</h2>
-            <RecommendationWidget animeId={anime.id} />
+          {/* Right column - Details */}
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">{anime.title}</h1>
+              
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center">
+                  <RatingStars initialRating={anime.rating / 2} readOnly size="lg" />
+                  <span className="ml-2 text-lg font-medium">{anime.rating.toFixed(1)}</span>
+                </div>
+                
+                {isAuthenticated && (
+                  <div className="flex items-center gap-2">
+                    <Separator orientation="vertical" className="h-6" />
+                    <span className="text-sm text-muted-foreground">Your Rating:</span>
+                    <RatingStars 
+                      initialRating={userRating || 0} 
+                      onRatingChange={handleRatingChange}
+                      size="md"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex flex-wrap gap-2 mb-6">
+                {anime.genres.map((genre, index) => (
+                  <Badge key={index} variant="outline" className="bg-muted/50">
+                    {genre}
+                  </Badge>
+                ))}
+              </div>
+              
+              <p className="text-lg mb-4">{anime.synopsis}</p>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-1">Studios</h3>
+                <div className="flex flex-wrap gap-2">
+                  {anime.studios.map((studio, index) => (
+                    <Badge key={index} className="bg-anime-purple">
+                      {studio}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+        
+        {/* Recommendations */}
+        <RecommendationWidget animeId={anime.id} />
+        
+        {/* Comments Section */}
+        <CommentSection animeId={anime.id} />
       </main>
       
       <Footer />

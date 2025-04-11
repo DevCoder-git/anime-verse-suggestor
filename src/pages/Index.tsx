@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import AnimeGrid from '@/components/AnimeGrid';
-import AnimeCard from '@/components/AnimeCard';
-import { Anime } from '@/services/animeData';
+import TrendingSection from '@/components/TrendingSection';
+import { Anime } from '@/services/types';
 import { fetchAnimeList, searchAnimeByQuery } from '@/services/api';
 import { useQuery } from '@tanstack/react-query';
 
@@ -59,6 +59,8 @@ const Index = () => {
         ) : (
           <>
             <Hero />
+            
+            <TrendingSection />
             
             <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Top Rated Anime</h2>
