@@ -62,7 +62,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({ animeId }) 
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any Type</SelectItem>
+                  <SelectItem value="all">Any Type</SelectItem>
                   <SelectItem value="TV">TV Series</SelectItem>
                   <SelectItem value="Movie">Movie</SelectItem>
                   <SelectItem value="OVA">OVA</SelectItem>
