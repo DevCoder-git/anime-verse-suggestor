@@ -18,12 +18,12 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
       <div className="relative aspect-[3/4] overflow-hidden">
         <img 
           src={anime.image} 
-          alt={anime.title}
+          alt={anime.title || "Anime image"}
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
         />
         <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1">
           <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-          <span className="text-white">{anime.rating}</span>
+          <span className="text-white">{anime.rating || "N/A"}</span>
         </div>
         {anime.type && (
           <div className="absolute top-2 left-2">
@@ -34,14 +34,14 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
         )}
       </div>
       <div className="p-4">
-        <h3 className="font-semibold line-clamp-1 text-foreground mb-1">{anime.title}</h3>
+        <h3 className="font-semibold line-clamp-1 text-foreground mb-1">{anime.title || "Unknown Anime"}</h3>
         <div className="flex flex-wrap gap-2 mt-2">
-          {anime.genres.slice(0, maxGenres).map((genre, index) => (
+          {anime.genres && anime.genres.slice(0, maxGenres).map((genre, index) => (
             <Badge key={index} variant="outline" className="bg-muted/50 text-xs">
               {genre}
             </Badge>
           ))}
-          {anime.genres.length > maxGenres && (
+          {anime.genres && anime.genres.length > maxGenres && (
             <Badge variant="outline" className="bg-muted/50 text-xs">
               +{anime.genres.length - maxGenres}
             </Badge>
