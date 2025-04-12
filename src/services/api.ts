@@ -146,47 +146,7 @@ export const postComment = async (animeId: number, content: string): Promise<Com
   return response.data;
 };
 
-export const reportComment = async (commentId: number): Promise<void> => {
-  await api.post(`/auth/comments/report/${commentId}/`);
-};
-
 export const fetchTrendingAnime = async (): Promise<Anime[]> => {
   const response = await api.get('/anime/trending/');
-  return response.data;
-};
-
-// User Statistics API
-export const fetchUserStats = async () => {
-  const response = await api.get('/auth/user-stats/');
-  return response.data;
-};
-
-// Admin APIs
-export const isAdmin = async (): Promise<boolean> => {
-  try {
-    await api.get('/auth/admin/check/');
-    return true;
-  } catch (error) {
-    return false;
-  }
-};
-
-export const fetchAllUsers = async () => {
-  const response = await api.get('/auth/admin/users/');
-  return response.data.users;
-};
-
-export const manageUser = async (userId: number, action: 'activate' | 'deactivate' | 'make_admin' | 'remove_admin') => {
-  const response = await api.post('/auth/admin/users/', { user_id: userId, action });
-  return response.data;
-};
-
-export const fetchReportedContent = async () => {
-  const response = await api.get('/auth/admin/moderation/');
-  return response.data;
-};
-
-export const moderateContent = async (commentId: number, action: 'remove' | 'approve') => {
-  const response = await api.post('/auth/admin/moderation/', { comment_id: commentId, action });
   return response.data;
 };

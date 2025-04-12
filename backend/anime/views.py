@@ -1,6 +1,6 @@
 
 import random
-from django.db.models import Q, Count, Avg, F
+from django.db.models import Q, Count, Avg
 from rest_framework import status, viewsets, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -147,42 +147,10 @@ class AnimeRecommendationsAPIView(APIView):
         genres = request.query_params.getlist('genres', [])
         anime_type = request.query_params.get('type', '')
         anime_id = request.query_params.get('anime_id', None)
-        user = request.user if request.user.is_authenticated else None
         
         # Base queryset
         queryset = Anime.objects.all()
         
-        # Collaborative Filtering: Find similar users and their favorite anime
-        if user:
-            # Get user's ratings
-            user_ratings = Rating.objects.filter(user=user).select_related('anime')
-            if user_ratings.exists():
-                # Find users with similar taste (rated same anime highly)
-                user_high_rated_anime = user_ratings.filter(score__gte=7).values_list('anime_id', flat=True)
-                
-                if user_high_rated_anime:
-                    # Find users who also rated these anime highly
-                    similar_users = Rating.objects.filter(
-                        anime_id__in=user_high_rated_anime,
-                        score__gte=7
-                    ).exclude(user=user).values_list('user_id', flat=True).distinct()
-                    
-                    # Get anime these similar users rated highly but current user hasn't watched
-                    user_watched_anime = user_ratings.values_list('anime_id', flat=True)
-                    collaborative_recs = Rating.objects.filter(
-                        user_id__in=similar_users,
-                        score__gte=8
-                    ).exclude(
-                        anime_id__in=user_watched_anime
-                    ).values_list('anime_id', flat=True).distinct()
-                    
-                    if collaborative_recs:
-                        # Boost these anime in recommendations
-                        queryset = queryset.annotate(
-                            is_collab_rec=Count('id', filter=Q(id__in=collaborative_recs))
-                        )
-        
-        # Content-Based Filtering
         # Filter by anime_id for similar anime
         if anime_id:
             try:
@@ -200,11 +168,8 @@ class AnimeRecommendationsAPIView(APIView):
         if anime_type:
             queryset = queryset.filter(type=anime_type)
         
-        # Add rating sort with collaborative boost
-        if user and user_ratings.exists():
-            queryset = queryset.order_by('-is_collab_rec', '-rating')
-        else:
-            queryset = queryset.order_by('-rating')
+        # Add rating sort
+        queryset = queryset.order_by('-rating')
         
         # Limit results
         results = queryset[:15]
