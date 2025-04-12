@@ -1,14 +1,18 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({ onSearch }) => {
+  const { isAuthenticated, user } = useAuth();
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (onSearch) {
       onSearch(e.target.value);
@@ -42,6 +46,30 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
           <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">Home</Link>
           <Link to="/discover" className="text-foreground hover:text-primary transition-colors font-medium">Discover</Link>
           <Link to="/favorites" className="text-foreground hover:text-primary transition-colors font-medium">Favorites</Link>
+          
+          {isAuthenticated ? (
+            <Link to="/profile" className="flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+              <div className="w-8 h-8 rounded-full bg-anime-purple/20 flex items-center justify-center">
+                {user?.avatar ? (
+                  <img 
+                    src={user.avatar} 
+                    alt={user.username}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <User className="h-4 w-4 text-anime-purple" />
+                )}
+              </div>
+              <span className="font-medium hidden md:inline">{user?.username || 'Profile'}</span>
+            </Link>
+          ) : (
+            <Link to="/auth">
+              <Button variant="outline" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span>Login</span>
+              </Button>
+            </Link>
+          )}
         </nav>
       </div>
     </header>
