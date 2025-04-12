@@ -31,14 +31,14 @@ const Index = () => {
   };
 
   // Filter for top rated anime
-  const topRatedAnime = [...(animeList || [])]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 5);
+  const topRatedAnime = animeList && animeList.length > 0 
+    ? [...animeList].sort((a, b) => b.rating - a.rating).slice(0, 5)
+    : [];
 
   // Filter for latest anime (based on year)
-  const latestAnime = [...(animeList || [])]
-    .sort((a, b) => b.year - a.year)
-    .slice(0, 5);
+  const latestAnime = animeList && animeList.length > 0
+    ? [...animeList].sort((a, b) => b.year - a.year).slice(0, 5)
+    : [];
 
   return (
     <div className="flex flex-col min-h-screen">
