@@ -30,24 +30,14 @@ if (token) {
 
 // Authentication APIs
 export const loginUser = async (username: string, password: string) => {
-  try {
-    const response = await api.post('/auth/login/', { username, password });
-    setAuthToken(response.data.token);
-    return response.data;
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
-  }
+  const response = await api.post('/auth/login/', { username, password });
+  setAuthToken(response.data.access);
+  return response.data;
 };
 
 export const registerUser = async (username: string, email: string, password: string) => {
-  try {
-    const response = await api.post('/auth/register/', { username, email, password });
-    return response.data;
-  } catch (error) {
-    console.error('Registration error:', error);
-    throw error;
-  }
+  const response = await api.post('/auth/register/', { username, email, password });
+  return response.data;
 };
 
 export const logoutUser = () => {
@@ -56,51 +46,23 @@ export const logoutUser = () => {
 
 // Anime APIs
 export const fetchAnimeList = async (): Promise<Anime[]> => {
-  try {
-    const response = await api.get('/anime/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching anime list:', error);
-    // Fall back to mock data
-    const { animeData } = await import('./animeData');
-    return animeData;
-  }
+  const response = await api.get('/anime/');
+  return response.data;
 };
 
-export const fetchAnimeById = async (id: number): Promise<Anime | undefined> => {
-  try {
-    const response = await api.get(`/anime/${id}/`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching anime with id ${id}:`, error);
-    // Fall back to mock data
-    const { getAnimeById } = await import('./animeData');
-    return getAnimeById(id);
-  }
+export const fetchAnimeById = async (id: number): Promise<Anime> => {
+  const response = await api.get(`/anime/${id}/`);
+  return response.data;
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  try {
-    const response = await api.get('/genres/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching genres:', error);
-    // Fall back to mock data
-    const { genres } = await import('./animeData');
-    return genres;
-  }
+  const response = await api.get('/genres/');
+  return response.data;
 };
 
 export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
-  try {
-    const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error searching anime:', error);
-    // Fall back to mock data
-    const { searchAnime } = await import('./animeData');
-    return searchAnime(query);
-  }
+  const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
+  return response.data;
 };
 
 export const getAnimeRecommendations = async (
@@ -108,151 +70,83 @@ export const getAnimeRecommendations = async (
   selectedType: string = '',
   animeId: number = 0
 ): Promise<Anime[]> => {
-  try {
-    let url = '/anime/recommendations/';
-    const params = new URLSearchParams();
-    
-    if (selectedGenres.length > 0) {
-      selectedGenres.forEach(genre => params.append('genres', genre));
-    }
-    
-    if (selectedType) {
-      params.append('type', selectedType);
-    }
-    
-    if (animeId > 0) {
-      params.append('anime_id', animeId.toString());
-    }
-    
-    const response = await api.get(`${url}?${params.toString()}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching recommendations:', error);
-    // Fall back to mock data
-    const { getRecommendations } = await import('./animeData');
-    return getRecommendations(selectedGenres, selectedType, animeId);
+  let url = '/anime/recommendations/';
+  const params = new URLSearchParams();
+  
+  if (selectedGenres.length > 0) {
+    selectedGenres.forEach(genre => params.append('genres', genre));
   }
+  
+  if (selectedType) {
+    params.append('type', selectedType);
+  }
+  
+  if (animeId > 0) {
+    params.append('anime_id', animeId.toString());
+  }
+  
+  const response = await api.get(`${url}?${params.toString()}`);
+  return response.data;
 };
 
 // User Profile APIs
 export const fetchUserProfile = async (): Promise<UserProfile> => {
-  try {
-    const response = await api.get('/users/profile/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    throw error;
-  }
+  const response = await api.get('/auth/profile/');
+  return response.data;
 };
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
-  try {
-    const response = await api.put('/users/profile/', profileData);
-    return response.data;
-  } catch (error) {
-    console.error('Error updating user profile:', error);
-    throw error;
-  }
+  const response = await api.put('/auth/profile/', profileData);
+  return response.data;
 };
 
 // Watchlist APIs
 export const fetchWatchlist = async (): Promise<Anime[]> => {
-  try {
-    const response = await api.get('/users/watchlist/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching watchlist:', error);
-    return [];
-  }
+  const response = await api.get('/auth/watchlist/');
+  // Map the response to extract the anime objects from the watchlist items
+  return response.data.map((item: any) => item.anime);
 };
 
 export const addToWatchlist = async (animeId: number): Promise<void> => {
-  try {
-    await api.post('/users/watchlist/add/', { anime_id: animeId });
-  } catch (error) {
-    console.error('Error adding to watchlist:', error);
-    throw error;
-  }
+  await api.post('/auth/watchlist/add/', { anime_id: animeId });
 };
 
 export const removeFromWatchlist = async (animeId: number): Promise<void> => {
-  try {
-    await api.delete(`/users/watchlist/remove/${animeId}/`);
-  } catch (error) {
-    console.error('Error removing from watchlist:', error);
-    throw error;
-  }
+  await api.delete(`/auth/watchlist/remove/${animeId}/`);
 };
 
 export const isInWatchlist = async (animeId: number): Promise<boolean> => {
-  try {
-    const response = await api.get(`/users/watchlist/check/${animeId}/`);
-    return response.data.in_watchlist;
-  } catch (error) {
-    console.error('Error checking watchlist:', error);
-    return false;
-  }
+  const response = await api.get(`/auth/watchlist/check/${animeId}/`);
+  return response.data.in_watchlist;
 };
 
 // Ratings APIs
 export const fetchAnimeRatings = async (animeId: number): Promise<Rating[]> => {
-  try {
-    const response = await api.get(`/anime/${animeId}/ratings/`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching anime ratings:', error);
-    return [];
-  }
+  const response = await api.get(`/anime/${animeId}/ratings/`);
+  return response.data;
 };
 
 export const rateAnime = async (animeId: number, score: number): Promise<void> => {
-  try {
-    await api.post(`/anime/${animeId}/rate/`, { score });
-  } catch (error) {
-    console.error('Error rating anime:', error);
-    throw error;
-  }
+  await api.post(`/anime/${animeId}/rate/`, { score });
 };
 
 export const getUserRating = async (animeId: number): Promise<number | null> => {
-  try {
-    const response = await api.get(`/anime/${animeId}/user-rating/`);
-    return response.data.score;
-  } catch (error) {
-    console.error('Error fetching user rating:', error);
-    return null;
-  }
+  const response = await api.get(`/anime/${animeId}/user-rating/`);
+  return response.data.score;
 };
 
 // Comments/Reviews APIs
 export const fetchAnimeComments = async (animeId: number): Promise<Comment[]> => {
-  try {
-    const response = await api.get(`/anime/${animeId}/comments/`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching anime comments:', error);
-    return [];
-  }
+  const response = await api.get(`/anime/${animeId}/comments/`);
+  return response.data;
 };
 
 export const postComment = async (animeId: number, content: string): Promise<Comment> => {
-  try {
-    const response = await api.post(`/anime/${animeId}/comments/add/`, { content });
-    return response.data;
-  } catch (error) {
-    console.error('Error posting comment:', error);
-    throw error;
-  }
+  const response = await api.post(`/anime/${animeId}/comments/add/`, { content });
+  return response.data;
 };
 
 export const fetchTrendingAnime = async (): Promise<Anime[]> => {
-  try {
-    const response = await api.get('/anime/trending/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching trending anime:', error);
-    // Fall back to mock data - return top rated as trending
-    const { animeData } = await import('./animeData');
-    return [...animeData].sort((a, b) => b.rating - a.rating).slice(0, 5);
-  }
+  const response = await api.get('/anime/trending/');
+  return response.data;
 };
