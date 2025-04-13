@@ -14,7 +14,8 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const { data: animeList = [], isLoading } = useQuery({
+  // Fetch anime list with proper error handling
+  const { data: animeList = [], isLoading, error } = useQuery({
     queryKey: ['animeList'],
     queryFn: fetchAnimeList
   });
@@ -30,12 +31,11 @@ const Index = () => {
     }
   };
 
-  // Filter for top rated anime
+  // Ensure top rated and latest anime are only computed when animeList is available
   const topRatedAnime = animeList && animeList.length > 0 
     ? [...animeList].sort((a, b) => b.rating - a.rating).slice(0, 5)
     : [];
 
-  // Filter for latest anime (based on year)
   const latestAnime = animeList && animeList.length > 0
     ? [...animeList].sort((a, b) => b.year - a.year).slice(0, 5)
     : [];
@@ -48,6 +48,10 @@ const Index = () => {
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-anime-purple"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-500">
+            Error loading anime list. Please try again later.
           </div>
         ) : hasSearched ? (
           <div className="mb-12">
@@ -65,20 +69,18 @@ const Index = () => {
             
             <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Top Rated Anime</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                {topRatedAnime.map((anime) => (
-                  <AnimeCard key={anime.id} anime={anime} />
-                ))}
-              </div>
+              <AnimeGrid 
+                animeList={topRatedAnime} 
+                emptyMessage="No top-rated anime available."
+              />
             </section>
             
             <section className="mb-16">
               <h2 className="text-3xl font-bold mb-6">Latest Releases</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                {latestAnime.map((anime) => (
-                  <AnimeCard key={anime.id} anime={anime} />
-                ))}
-              </div>
+              <AnimeGrid 
+                animeList={latestAnime}
+                emptyMessage="No latest anime available." 
+              />
             </section>
           </>
         )}
