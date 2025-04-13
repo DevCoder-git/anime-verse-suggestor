@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
@@ -14,13 +14,17 @@ import { toast } from "sonner";
 const Index = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // Fetch anime list with improved error handling
-  const { data: animeList = [], isLoading, error } = useQuery({
-    queryKey: ['animeList'],
-    queryFn: () => {
+  // Fetch anime list with more robust error handling
+  const { data: animeList = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['animeList', retryCount], // Add retryCount to force refetch
+    queryFn: async () => {
+      console.log('Fetching anime list...');
       try {
-        return fetchAnimeList();
+        const result = await fetchAnimeList();
+        console.log('Anime list fetch successful:', result.length, 'items');
+        return result;
       } catch (error) {
         console.error("Failed to fetch anime list:", error);
         toast.error("Failed to load anime data");
@@ -30,6 +34,13 @@ const Index = () => {
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Add effect to monitor and log API errors
+  useEffect(() => {
+    if (error) {
+      console.error("API Error Details:", error);
+    }
+  }, [error]);
 
   const handleSearch = async (query: string) => {
     if (query.length > 0) {
@@ -46,6 +57,12 @@ const Index = () => {
       setSearchResults([]);
       setHasSearched(false);
     }
+  };
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+    refetch();
+    toast.info("Retrying to load anime data...");
   };
 
   // Ensure top rated and latest anime are only computed when animeList is available
@@ -85,12 +102,15 @@ const Index = () => {
             <div className="text-red-500 text-2xl mb-4">
               Unable to load anime list
             </div>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-2">
               There was a problem loading the anime data. Please try again later.
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Error: {error instanceof Error ? error.message : 'Unknown error'}
             </p>
             <button 
               className="mt-4 px-4 py-2 bg-anime-purple text-white rounded-md hover:bg-anime-purple/90"
-              onClick={() => window.location.reload()}
+              onClick={handleRetry}
             >
               Retry
             </button>

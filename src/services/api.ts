@@ -1,5 +1,4 @@
-
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { Anime, Genre, UserProfile, Comment, Rating } from './types';
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
@@ -9,7 +8,25 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // Add timeout to prevent hanging requests
 });
+
+// Error handling interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    // Log detailed error info
+    console.error('API Request Failed:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      responseData: error.response?.data,
+    });
+    
+    return Promise.reject(error);
+  }
+);
 
 // Auth token configuration
 export const setAuthToken = (token: string) => {
@@ -46,8 +63,17 @@ export const logoutUser = () => {
 
 // Anime APIs
 export const fetchAnimeList = async (): Promise<Anime[]> => {
-  const response = await api.get('/anime/');
-  return response.data;
+  try {
+    const response = await api.get('/anime/');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching anime list:', error);
+    const errorMessage = error instanceof AxiosError 
+      ? `Server error: ${error.response?.status || 'unknown'} - ${error.response?.statusText || error.message}`
+      : 'Failed to connect to the server';
+    
+    throw new Error(errorMessage);
+  }
 };
 
 export const fetchAnimeById = async (id: number): Promise<Anime> => {
@@ -61,8 +87,17 @@ export const fetchGenres = async (): Promise<Genre[]> => {
 };
 
 export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
-  const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
-  return response.data;
+  try {
+    const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error searching anime:', error);
+    const errorMessage = error instanceof AxiosError 
+      ? `Search failed: ${error.response?.status || 'unknown'} - ${error.message}`
+      : 'Failed to connect to the search service';
+    
+    throw new Error(errorMessage);
+  }
 };
 
 export const getAnimeRecommendations = async (
