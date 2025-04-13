@@ -26,10 +26,12 @@ const Hero = () => {
           </Button>
           <Button 
             size="lg" 
-            variant="outline" 
-            className="border-white text-white hover:bg-white/20 font-medium"
+            variant="default" 
+            onClick={() => navigate('/discover')}
+            className="bg-anime-purple text-white hover:bg-anime-purple/90 transition-colors duration-300 group"
           >
             Browse Popular
+            <ChevronRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
