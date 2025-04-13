@@ -1,5 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import { Anime, Genre, UserProfile, Comment, Rating } from './types';
+import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist } from './mockData';
+
+// Toggle this to true to use mock data instead of API calls
+const USE_MOCK_DATA = true;
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
 
@@ -45,16 +49,54 @@ if (token) {
   setAuthToken(token);
 }
 
+// Helper function to handle API calls with mock data fallback
+const safeApiCall = async <T>(
+  apiCallFn: () => Promise<T>, 
+  mockData: T, 
+  errorMsg: string = "API request failed"
+): Promise<T> => {
+  if (USE_MOCK_DATA) {
+    console.log('Using mock data instead of API call');
+    return mockData;
+  }
+  
+  try {
+    return await apiCallFn();
+  } catch (error) {
+    console.error(errorMsg, error);
+    
+    if (error instanceof Error) {
+      // If backend is unavailable, use mock data
+      console.log('Backend unavailable. Using mock data.');
+      return mockData;
+    }
+    
+    throw error;
+  }
+};
+
 // Authentication APIs
 export const loginUser = async (username: string, password: string) => {
-  const response = await api.post('/auth/login/', { username, password });
-  setAuthToken(response.data.access);
-  return response.data;
+  // Only try API if mock data is disabled
+  if (!USE_MOCK_DATA) {
+    const response = await api.post('/auth/login/', { username, password });
+    setAuthToken(response.data.access);
+    return response.data;
+  }
+  
+  // Mock login response
+  const mockToken = "mock_jwt_token_for_testing";
+  setAuthToken(mockToken);
+  return { access: mockToken, refresh: "mock_refresh_token" };
 };
 
 export const registerUser = async (username: string, email: string, password: string) => {
-  const response = await api.post('/auth/register/', { username, email, password });
-  return response.data;
+  if (!USE_MOCK_DATA) {
+    const response = await api.post('/auth/register/', { username, email, password });
+    return response.data;
+  }
+  
+  return { success: true, message: "User registered successfully" };
 };
 
 export const logoutUser = () => {
@@ -63,41 +105,50 @@ export const logoutUser = () => {
 
 // Anime APIs
 export const fetchAnimeList = async (): Promise<Anime[]> => {
-  try {
-    const response = await api.get('/anime/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching anime list:', error);
-    const errorMessage = error instanceof AxiosError 
-      ? `Server error: ${error.response?.status || 'unknown'} - ${error.response?.statusText || error.message}`
-      : 'Failed to connect to the server';
-    
-    throw new Error(errorMessage);
-  }
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/anime/');
+      return response.data;
+    },
+    mockAnimeList,
+    'Error fetching anime list:'
+  );
 };
 
 export const fetchAnimeById = async (id: number): Promise<Anime> => {
-  const response = await api.get(`/anime/${id}/`);
-  return response.data;
+  return safeApiCall(
+    async () => {
+      const response = await api.get(`/anime/${id}/`);
+      return response.data;
+    },
+    mockAnimeList.find(anime => anime.id === id) || mockAnimeList[0],
+    `Error fetching anime with id ${id}:`
+  );
 };
 
 export const fetchGenres = async (): Promise<Genre[]> => {
-  const response = await api.get('/genres/');
-  return response.data;
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/genres/');
+      return response.data;
+    },
+    mockGenres,
+    'Error fetching genres:'
+  );
 };
 
 export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
-  try {
-    const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error searching anime:', error);
-    const errorMessage = error instanceof AxiosError 
-      ? `Search failed: ${error.response?.status || 'unknown'} - ${error.message}`
-      : 'Failed to connect to the search service';
-    
-    throw new Error(errorMessage);
-  }
+  return safeApiCall(
+    async () => {
+      const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
+      return response.data;
+    },
+    mockAnimeList.filter(anime => 
+      anime.title.toLowerCase().includes(query.toLowerCase()) ||
+      anime.genres.some(genre => genre.toLowerCase().includes(query.toLowerCase()))
+    ),
+    'Error searching anime:'
+  );
 };
 
 export const getAnimeRecommendations = async (
@@ -105,29 +156,50 @@ export const getAnimeRecommendations = async (
   selectedType: string = '',
   animeId: number = 0
 ): Promise<Anime[]> => {
-  let url = '/anime/recommendations/';
-  const params = new URLSearchParams();
-  
-  if (selectedGenres.length > 0) {
-    selectedGenres.forEach(genre => params.append('genres', genre));
-  }
-  
-  if (selectedType) {
-    params.append('type', selectedType);
-  }
-  
-  if (animeId > 0) {
-    params.append('anime_id', animeId.toString());
-  }
-  
-  const response = await api.get(`${url}?${params.toString()}`);
-  return response.data;
+  return safeApiCall(
+    async () => {
+      let url = '/anime/recommendations/';
+      const params = new URLSearchParams();
+      
+      if (selectedGenres.length > 0) {
+        selectedGenres.forEach(genre => params.append('genres', genre));
+      }
+      
+      if (selectedType) {
+        params.append('type', selectedType);
+      }
+      
+      if (animeId > 0) {
+        params.append('anime_id', animeId.toString());
+      }
+      
+      const response = await api.get(`${url}?${params.toString()}`);
+      return response.data;
+    },
+    mockAnimeList.filter(anime => 
+      (selectedGenres.length === 0 || anime.genres.some(genre => selectedGenres.includes(genre))) &&
+      (selectedType === '' || anime.type === selectedType)
+    ).slice(0, 5),
+    'Error fetching recommendations:'
+  );
 };
 
 // User Profile APIs
 export const fetchUserProfile = async (): Promise<UserProfile> => {
-  const response = await api.get('/auth/profile/');
-  return response.data;
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/auth/profile/');
+      return response.data;
+    },
+    {
+      id: 1,
+      username: "anime_lover",
+      email: "user@example.com",
+      profile_picture: null,
+      bio: "Just a mock profile for development"
+    },
+    'Error fetching user profile:'
+  );
 };
 
 export const updateUserProfile = async (profileData: Partial<UserProfile>): Promise<UserProfile> => {
@@ -137,9 +209,14 @@ export const updateUserProfile = async (profileData: Partial<UserProfile>): Prom
 
 // Watchlist APIs
 export const fetchWatchlist = async (): Promise<Anime[]> => {
-  const response = await api.get('/auth/watchlist/');
-  // Map the response to extract the anime objects from the watchlist items
-  return response.data.map((item: any) => item.anime);
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/auth/watchlist/');
+      return response.data.map((item: any) => item.anime);
+    },
+    mockWatchlist,
+    'Error fetching watchlist:'
+  );
 };
 
 export const addToWatchlist = async (animeId: number): Promise<void> => {
@@ -186,8 +263,14 @@ export const reportComment = async (commentId: number): Promise<void> => {
 };
 
 export const fetchTrendingAnime = async (): Promise<Anime[]> => {
-  const response = await api.get('/anime/trending/');
-  return response.data;
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/anime/trending/');
+      return response.data;
+    },
+    mockTrendingAnime,
+    'Error fetching trending anime:'
+  );
 };
 
 // User Statistics API

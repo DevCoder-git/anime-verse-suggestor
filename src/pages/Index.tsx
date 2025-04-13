@@ -16,9 +16,9 @@ const Index = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // Fetch anime list with more robust error handling
+  // Fetch anime list with fallback to mock data
   const { data: animeList = [], isLoading, error, refetch } = useQuery({
-    queryKey: ['animeList', retryCount], // Add retryCount to force refetch
+    queryKey: ['animeList', retryCount],
     queryFn: async () => {
       console.log('Fetching anime list...');
       try {
@@ -31,16 +31,19 @@ const Index = () => {
         throw error;
       }
     },
-    retry: 2,
+    retry: 1, // Only retry once since we have mock fallback
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Add effect to monitor and log API errors
+  // Add effect to notify about using mock data
   useEffect(() => {
-    if (error) {
-      console.error("API Error Details:", error);
+    if (animeList.length > 0 && !isLoading) {
+      // Show a toast only if we're using mock data (first time)
+      if (error) {
+        toast.info("Using mock data for demonstration");
+      }
     }
-  }, [error]);
+  }, [animeList, isLoading, error]);
 
   const handleSearch = async (query: string) => {
     if (query.length > 0) {
@@ -99,20 +102,17 @@ const Index = () => {
           </div>
         ) : error ? (
           <div className="text-center my-20">
-            <div className="text-red-500 text-2xl mb-4">
-              Unable to load anime list
+            <div className="text-amber-500 text-2xl mb-4">
+              Using mock data for demonstration
             </div>
-            <p className="text-muted-foreground mb-2">
-              There was a problem loading the anime data. Please try again later.
-            </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Error: {error instanceof Error ? error.message : 'Unknown error'}
+            <p className="text-muted-foreground mb-4">
+              The backend server couldn't be reached, but we're showing sample data instead.
             </p>
             <button 
               className="mt-4 px-4 py-2 bg-anime-purple text-white rounded-md hover:bg-anime-purple/90"
               onClick={handleRetry}
             >
-              Retry
+              Try Again with Real Data
             </button>
           </div>
         ) : hasSearched ? (
