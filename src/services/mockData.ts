@@ -1,5 +1,6 @@
 
 import { Anime, Genre } from './animeData';
+import { CharacterData } from './types';
 
 // Sample anime data for testing and development
 export const mockAnimeList: Anime[] = [
@@ -175,3 +176,25 @@ export const mockComments: Comment[] = [
 
 // Mock user watchlist
 export const mockWatchlist: Anime[] = mockAnimeList.slice(1, 4);
+
+// Mock character data
+export const mockCharacters: CharacterData[] = [
+  {
+    id: 1,
+    name: "Tanjiro Kamado",
+    image: "https://via.placeholder.com/150?text=Tanjiro",
+    role: "Main Character",
+    voice_actor: "Natsuki Hanae",
+    anime_id: 1,
+    description: "A kind-hearted young man who became a demon slayer to cure his sister and avenge his family."
+  },
+  {
+    id: 2,
+    name: "Eren Yeager",
+    image: "https://via.placeholder.com/150?text=Eren",
+    role: "Main Character",
+    voice_actor: "Yuki Kaji",
+    anime_id: 2,
+    description: "A passionate young man who swore to eliminate all titans after they destroyed his hometown."
+  }
+];

@@ -1,8 +1,8 @@
 import axios, { AxiosError } from 'axios';
-import { Anime, Genre, UserProfile, Comment, Rating } from './types';
-import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist } from './mockData';
+import { Anime, Genre, UserProfile, Comment, Rating, CharacterData } from './types';
+import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters } from './mockData';
 
-// Toggle this to true to use mock data instead of API calls
+// Toggle this to false to use real API calls instead of mock data
 const USE_MOCK_DATA = true;
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
@@ -307,4 +307,16 @@ export const fetchReportedContent = async () => {
 export const moderateContent = async (commentId: number, action: 'remove' | 'approve') => {
   const response = await api.post('/auth/admin/moderation/', { comment_id: commentId, action });
   return response.data;
+};
+
+// Character APIs
+export const fetchAnimeCharacters = async (animeId: number): Promise<CharacterData[]> => {
+  return safeApiCall(
+    async () => {
+      const response = await api.get(`/anime/${animeId}/characters/`);
+      return response.data;
+    },
+    mockCharacters.filter(character => character.anime_id === animeId),
+    `Error fetching characters for anime with id ${animeId}:`
+  );
 };
