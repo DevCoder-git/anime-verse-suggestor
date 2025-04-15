@@ -15,6 +15,7 @@ const Index = () => {
   const [searchResults, setSearchResults] = useState<Anime[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [showAllAnime, setShowAllAnime] = useState(true);
 
   // Fetch anime list with fallback to mock data
   const { data: animeList = [], isLoading, error, refetch } = useQuery({
@@ -51,6 +52,7 @@ const Index = () => {
         const results = await searchAnimeByQuery(query);
         setSearchResults(results);
         setHasSearched(true);
+        setShowAllAnime(false);
       } catch (error) {
         console.error("Search failed:", error);
         toast.error("Search failed. Please try again.");
@@ -59,6 +61,7 @@ const Index = () => {
     } else {
       setSearchResults([]);
       setHasSearched(false);
+      setShowAllAnime(true);
     }
   };
 
@@ -88,9 +91,9 @@ const Index = () => {
             <TrendingSection />
             
             <section className="mb-16">
-              <h2 className="text-3xl font-bold mb-6">Top Rated Anime</h2>
+              <h2 className="text-3xl font-bold mb-6">Loading Anime...</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(10)].map((_, i) => (
                   <div key={i} className="w-full">
                     <Skeleton className="w-full aspect-[3/4] rounded-lg mb-2" />
                     <Skeleton className="h-4 w-3/4 mb-1" />
@@ -144,6 +147,16 @@ const Index = () => {
                 emptyMessage="No latest anime available." 
               />
             </section>
+
+            {showAllAnime && (
+              <section className="mb-16">
+                <h2 className="text-3xl font-bold mb-6">All Anime</h2>
+                <AnimeGrid 
+                  animeList={animeList}
+                  emptyMessage="No anime available." 
+                />
+              </section>
+            )}
           </>
         )}
       </main>
