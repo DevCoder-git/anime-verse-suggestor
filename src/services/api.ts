@@ -1,9 +1,10 @@
+
 import axios, { AxiosError } from 'axios';
 import { Anime, Genre, UserProfile, Comment, Rating, CharacterData } from './types';
 import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters } from './mockData';
 
 // Toggle this to false to use real API calls instead of mock data
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
 
