@@ -53,3 +53,4 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
 };
 
 export default AnimeCard;
+
