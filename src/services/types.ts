@@ -42,3 +42,13 @@ export interface AuthState {
   error: string | null;
 }
 
+// Add CharacterData interface definition
+export interface CharacterData {
+  id: number;
+  name: string;
+  image: string;
+  role: string;
+  voice_actor?: string;
+  anime_id: number;
+  description?: string;
+}
