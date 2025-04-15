@@ -1,6 +1,5 @@
-
 import { Anime, Genre } from './animeData';
-import { CharacterData } from './types';
+import { CharacterData, Comment } from './types';
 
 // Sample anime data for testing and development
 export const mockAnimeList: Anime[] = [
