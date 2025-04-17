@@ -25,6 +25,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
           alt={anime.title || "Anime image"}
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
           onError={() => setImgError(true)}
+          loading="lazy"
         />
         <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1">
           <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
