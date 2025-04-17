@@ -26,11 +26,8 @@ echo "Loading sample data..."
 python manage.py seed_data
 
 # Create superuser (only if it doesn't exist)
-echo "Do you want to create a superuser? (y/n)"
-read create_superuser
-if [ "$create_superuser" = "y" ]; then
-    python manage.py createsuperuser
-fi
+echo "Creating a default admin user (username: admin, password: admin)..."
+echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin') if not User.objects.filter(username='admin').exists() else None" | python manage.py shell
 
 # Run the server
 echo "Starting the server..."
