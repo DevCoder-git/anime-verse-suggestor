@@ -27,7 +27,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
     <Link to={`/anime/${anime.id}`} className={`anime-card block rounded-lg overflow-hidden shadow-md bg-anime-card ${className}`}>
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
         <img 
-          src={imgError ? placeholderImage : anime.image} 
+          src={imgError ? placeholderImage : anime.image || placeholderImage} 
           alt={anime.title || "Anime image"}
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
           onError={handleImageError}

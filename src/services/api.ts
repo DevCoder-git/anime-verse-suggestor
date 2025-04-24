@@ -154,14 +154,18 @@ export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
     return [];
   }
   
+  const normalizedQuery = query.toLowerCase().trim();
+  
   return safeApiCall(
     async () => {
       const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
       return response.data;
     },
     mockAnimeList.filter(anime => 
-      anime.title.toLowerCase().includes(query.toLowerCase()) ||
-      anime.genres.some(genre => genre.toLowerCase().includes(query.toLowerCase()))
+      anime.title.toLowerCase().includes(normalizedQuery) ||
+      anime.genres.some(genre => genre.toLowerCase().includes(normalizedQuery)) ||
+      (anime.synopsis && anime.synopsis.toLowerCase().includes(normalizedQuery)) ||
+      (anime.studios && anime.studios.some(studio => studio.toLowerCase().includes(normalizedQuery)))
     ),
     'Error searching anime:'
   );

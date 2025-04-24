@@ -1,3 +1,4 @@
+
 import { Anime, Genre } from './animeData';
 import { CharacterData, Comment } from './types';
 
@@ -13,7 +14,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Fantasy", "Adventure"],
     rating: 8.9,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/WGIXEqn.jpg",
     studios: ["ufotable"]
   },
   {
@@ -26,7 +27,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Drama", "Fantasy"],
     rating: 9.1,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/QyAjQB3.jpg",
     studios: ["Wit Studio"]
   },
   {
@@ -39,7 +40,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Comedy", "Super Power"],
     rating: 8.4,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/SZJnTOQ.jpg",
     studios: ["Bones"]
   },
   {
@@ -52,7 +53,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Comedy", "Sci-Fi"],
     rating: 8.7,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/FQJ8FY9.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -65,7 +66,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Fantasy", "Supernatural"],
     rating: 8.8,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/Z8ByaCq.jpg",
     studios: ["MAPPA"]
   },
   {
@@ -78,7 +79,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Adventure", "Drama"],
     rating: 9.2,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/hSUVaZM.jpg",
     studios: ["Bones"]
   },
   {
@@ -91,7 +92,7 @@ export const mockAnimeList: Anime[] = [
     season: "Winter",
     genres: ["Action", "Adventure", "Fantasy"],
     rating: 8.6,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/yyHBSM5.jpg",
     studios: ["Pierrot"]
   },
   {
@@ -104,7 +105,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Mystery", "Psychological", "Supernatural"],
     rating: 9.0,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/PdXDXq4.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -117,7 +118,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Adventure", "Fantasy"],
     rating: 9.1,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/Cj7nD9O.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -130,7 +131,7 @@ export const mockAnimeList: Anime[] = [
     season: "Winter",
     genres: ["Drama", "Fantasy", "Slice of Life"],
     rating: 8.9,
-    image: "/placeholder.svg",
+    image: "https://i.imgur.com/FCFQBCJ.jpg",
     studios: ["Kyoto Animation"]
   }
 ];
