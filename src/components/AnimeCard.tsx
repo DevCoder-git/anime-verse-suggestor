@@ -14,7 +14,7 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
   const maxGenres = 2; // Maximum number of genres to display
   const [imgError, setImgError] = useState(false);
   
-  // Placeholder image for when the actual image fails to load
+  // Set a reliable placeholder image
   const placeholderImage = "/placeholder.svg";
   
   // Prepare image fallback mechanism
