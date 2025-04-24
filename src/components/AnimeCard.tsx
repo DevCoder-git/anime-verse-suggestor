@@ -17,14 +17,20 @@ const AnimeCard: React.FC<AnimeCardProps> = ({ anime, className }) => {
   // Placeholder image for when the actual image fails to load
   const placeholderImage = "/placeholder.svg";
   
+  // Prepare image fallback mechanism
+  const handleImageError = () => {
+    console.log(`Image failed to load for: ${anime.title}`);
+    setImgError(true);
+  };
+  
   return (
     <Link to={`/anime/${anime.id}`} className={`anime-card block rounded-lg overflow-hidden shadow-md bg-anime-card ${className}`}>
-      <div className="relative aspect-[3/4] overflow-hidden">
+      <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
         <img 
           src={imgError ? placeholderImage : anime.image} 
           alt={anime.title || "Anime image"}
           className="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-          onError={() => setImgError(true)}
+          onError={handleImageError}
           loading="lazy"
         />
         <div className="absolute top-2 right-2 bg-black/70 px-2 py-1 rounded-md text-xs font-semibold flex items-center gap-1">

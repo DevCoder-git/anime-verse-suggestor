@@ -14,7 +14,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Fantasy", "Adventure"],
     rating: 8.9,
-    image: "https://via.placeholder.com/300x450/3949AB/FFFFFF?text=Demon+Slayer",
+    image: "https://i.imgur.com/RF2Pvyk.jpg",
     studios: ["ufotable"]
   },
   {
@@ -27,7 +27,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Drama", "Fantasy"],
     rating: 9.1,
-    image: "https://via.placeholder.com/300x450/512DA8/FFFFFF?text=Attack+on+Titan",
+    image: "https://i.imgur.com/ubBcNvY.jpg",
     studios: ["Wit Studio"]
   },
   {
@@ -40,7 +40,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Comedy", "Super Power"],
     rating: 8.4,
-    image: "https://via.placeholder.com/300x450/673AB7/FFFFFF?text=My+Hero+Academia",
+    image: "https://i.imgur.com/jh2VhKF.jpg",
     studios: ["Bones"]
   },
   {
@@ -53,7 +53,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Comedy", "Sci-Fi"],
     rating: 8.7,
-    image: "https://via.placeholder.com/300x450/7E57C2/FFFFFF?text=One+Punch+Man",
+    image: "https://i.imgur.com/hvmRzAp.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -66,7 +66,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Fantasy", "Supernatural"],
     rating: 8.8,
-    image: "https://via.placeholder.com/300x450/9575CD/FFFFFF?text=Jujutsu+Kaisen",
+    image: "https://i.imgur.com/CT9Lxnz.jpg",
     studios: ["MAPPA"]
   },
   {
@@ -79,7 +79,7 @@ export const mockAnimeList: Anime[] = [
     season: "Spring",
     genres: ["Action", "Adventure", "Drama"],
     rating: 9.2,
-    image: "https://via.placeholder.com/300x450/B39DDB/FFFFFF?text=Fullmetal+Alchemist",
+    image: "https://i.imgur.com/hSUVaZM.jpg",
     studios: ["Bones"]
   },
   {
@@ -92,7 +92,7 @@ export const mockAnimeList: Anime[] = [
     season: "Winter",
     genres: ["Action", "Adventure", "Fantasy"],
     rating: 8.6,
-    image: "https://via.placeholder.com/300x450/4527A0/FFFFFF?text=Naruto+Shippuden",
+    image: "https://i.imgur.com/0JGgBUj.jpg",
     studios: ["Pierrot"]
   },
   {
@@ -105,7 +105,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Mystery", "Psychological", "Supernatural"],
     rating: 9.0,
-    image: "https://via.placeholder.com/300x450/5E35B1/FFFFFF?text=Death+Note",
+    image: "https://i.imgur.com/PdXDXq4.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -118,7 +118,7 @@ export const mockAnimeList: Anime[] = [
     season: "Fall",
     genres: ["Action", "Adventure", "Fantasy"],
     rating: 9.1,
-    image: "https://via.placeholder.com/300x450/3F51B5/FFFFFF?text=Hunter+x+Hunter",
+    image: "https://i.imgur.com/Cj7nD9O.jpg",
     studios: ["Madhouse"]
   },
   {
@@ -131,7 +131,7 @@ export const mockAnimeList: Anime[] = [
     season: "Winter",
     genres: ["Drama", "Fantasy", "Slice of Life"],
     rating: 8.9,
-    image: "https://via.placeholder.com/300x450/303F9F/FFFFFF?text=Violet+Evergarden",
+    image: "https://i.imgur.com/FCFQBCJ.jpg",
     studios: ["Kyoto Animation"]
   }
 ];
@@ -182,7 +182,7 @@ export const mockCharacters: CharacterData[] = [
   {
     id: 1,
     name: "Tanjiro Kamado",
-    image: "https://via.placeholder.com/150/3949AB/FFFFFF?text=Tanjiro",
+    image: "https://i.imgur.com/WGIXEqn.jpg",
     role: "Main Character",
     voice_actor: "Natsuki Hanae",
     anime_id: 1,
@@ -191,7 +191,7 @@ export const mockCharacters: CharacterData[] = [
   {
     id: 2,
     name: "Eren Yeager",
-    image: "https://via.placeholder.com/150/512DA8/FFFFFF?text=Eren",
+    image: "https://i.imgur.com/QyAjQB3.jpg",
     role: "Main Character",
     voice_actor: "Yuki Kaji",
     anime_id: 2,
@@ -200,7 +200,7 @@ export const mockCharacters: CharacterData[] = [
   {
     id: 3,
     name: "Nezuko Kamado",
-    image: "https://via.placeholder.com/150/673AB7/FFFFFF?text=Nezuko",
+    image: "https://i.imgur.com/SZJnTOQ.jpg",
     role: "Supporting Character",
     voice_actor: "Akari Kitō",
     anime_id: 1,
@@ -209,7 +209,7 @@ export const mockCharacters: CharacterData[] = [
   {
     id: 4,
     name: "Mikasa Ackerman",
-    image: "https://via.placeholder.com/150/7E57C2/FFFFFF?text=Mikasa",
+    image: "https://i.imgur.com/FQJ8FY9.jpg",
     role: "Main Character",
     voice_actor: "Yui Ishikawa",
     anime_id: 2,

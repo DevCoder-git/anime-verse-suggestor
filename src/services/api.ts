@@ -1,8 +1,10 @@
+
 import axios, { AxiosError } from 'axios';
 import { Anime, Genre, UserProfile, Comment, Rating, CharacterData } from './types';
 import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters } from './mockData';
 
 // Toggle this to false to use real API calls instead of mock data
+// Always default to true to ensure the application works without a backend
 const USE_MOCK_DATA = true;
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
@@ -26,6 +28,7 @@ api.interceptors.response.use(
       status: error.response?.status,
       statusText: error.response?.statusText,
       responseData: error.response?.data,
+      error: error.message
     });
     
     return Promise.reject(error);
@@ -65,13 +68,9 @@ const safeApiCall = async <T>(
   } catch (error) {
     console.error(errorMsg, error);
     
-    if (error instanceof Error) {
-      // If backend is unavailable, use mock data
-      console.log('Backend unavailable. Using mock data.');
-      return mockData;
-    }
-    
-    throw error;
+    // If backend is unavailable, use mock data as fallback
+    console.log('Backend unavailable. Using mock data as fallback.');
+    return mockData;
   }
 };
 
@@ -79,12 +78,18 @@ const safeApiCall = async <T>(
 export const loginUser = async (username: string, password: string) => {
   // Only try API if mock data is disabled
   if (!USE_MOCK_DATA) {
-    const response = await api.post('/auth/login/', { username, password });
-    setAuthToken(response.data.access);
-    return response.data;
+    try {
+      const response = await api.post('/auth/login/', { username, password });
+      setAuthToken(response.data.access);
+      return response.data;
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;
+    }
   }
   
   // Mock login response
+  console.log('Using mock login data');
   const mockToken = "mock_jwt_token_for_testing";
   setAuthToken(mockToken);
   return { access: mockToken, refresh: "mock_refresh_token" };
@@ -92,15 +97,22 @@ export const loginUser = async (username: string, password: string) => {
 
 export const registerUser = async (username: string, email: string, password: string) => {
   if (!USE_MOCK_DATA) {
-    const response = await api.post('/auth/register/', { username, email, password });
-    return response.data;
+    try {
+      const response = await api.post('/auth/register/', { username, email, password });
+      return response.data;
+    } catch (error) {
+      console.error('Registration failed:', error);
+      throw error;
+    }
   }
   
+  console.log('Using mock registration data');
   return { success: true, message: "User registered successfully" };
 };
 
 export const logoutUser = () => {
   setAuthToken('');
+  console.log('User logged out');
 };
 
 // Anime APIs
@@ -138,6 +150,10 @@ export const fetchGenres = async (): Promise<Genre[]> => {
 };
 
 export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
+  if (!query.trim()) {
+    return [];
+  }
+  
   return safeApiCall(
     async () => {
       const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
@@ -196,7 +212,9 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
       username: "anime_lover",
       email: "user@example.com",
       profile_picture: null,
-      bio: "Just a mock profile for development"
+      bio: "Just a mock profile for development",
+      joined_date: new Date().toISOString(),
+      favorite_genres: ["Action", "Adventure"]
     },
     'Error fetching user profile:'
   );
