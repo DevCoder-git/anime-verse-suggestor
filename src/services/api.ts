@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Anime, Genre } from './types';
+import { Anime, Genre, UserProfile, Rating, Comment } from './types';
 import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters, fetchRealAnimeData, searchRealAnime } from './mockData';
 
 // Toggle this to false to use real API calls instead of mock data
@@ -205,7 +205,6 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
       id: 1,
       username: "anime_lover",
       email: "user@example.com",
-      profile_picture: null,
       bio: "Just a mock profile for development",
       joined_date: new Date().toISOString(),
       favorite_genres: ["Action", "Adventure"]

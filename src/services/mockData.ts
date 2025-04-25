@@ -1,3 +1,4 @@
+
 import { Anime, Genre } from './animeData';
 import { Comment, CharacterData } from './types';
 import axios from 'axios';
@@ -10,15 +11,35 @@ const convertJikanAnime = (jikanAnime: JikanAnime): Anime => ({
   id: jikanAnime.mal_id,
   title: jikanAnime.title,
   synopsis: jikanAnime.synopsis,
-  type: jikanAnime.type,
+  type: convertAnimeType(jikanAnime.type),
   episodes: jikanAnime.episodes,
   year: jikanAnime.year,
-  season: jikanAnime.season || 'Unknown',
+  season: convertAnimeSeason(jikanAnime.season),
   genres: jikanAnime.genres.map(g => g.name),
   rating: jikanAnime.score,
   image: jikanAnime.images.jpg.large_image_url,
   studios: jikanAnime.studios.map(s => s.name)
 });
+
+// Convert string to valid anime type
+const convertAnimeType = (type: string): 'TV' | 'Movie' | 'OVA' | 'Special' => {
+  if (type === 'TV' || type === 'Movie' || type === 'OVA' || type === 'Special') {
+    return type;
+  }
+  return 'TV'; // Default fallback
+};
+
+// Convert string to valid season
+const convertAnimeSeason = (season?: string): 'Winter' | 'Spring' | 'Summer' | 'Fall' => {
+  if (season === 'Winter' || season === 'Spring' || season === 'Summer' || season === 'Fall') {
+    return season;
+  }
+  return 'Spring'; // Default fallback
+};
+
+// Import animeData from animeData.ts to use as mockAnimeList
+import { animeData } from './animeData';
+export const mockAnimeList: Anime[] = animeData;
 
 // Fetch real anime data from Jikan API
 export const fetchRealAnimeData = async (): Promise<Anime[]> => {
