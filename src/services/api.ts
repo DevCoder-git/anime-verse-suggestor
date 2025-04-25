@@ -1,10 +1,13 @@
 import axios, { AxiosError } from 'axios';
-import { Anime, Genre, UserProfile, Rating, Comment } from './types';
-import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters, fetchRealAnimeData, searchRealAnime } from './mockData';
+import { Anime, Genre, Comment, Rating, CharacterData } from './types';
+import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters, fetchRealAnimeData, searchRealAnime, fetchRealTrendingAnime } from './mockData';
 
-// Toggle this to false to use real API calls instead of mock data
+// Toggle this to false to use real API calls instead of mock data for backend features
 // Always default to true to ensure the application works without a backend
 const USE_MOCK_DATA = true;
+
+// Always use real API for anime data
+const USE_REAL_ANIME_DATA = true;
 
 const API_URL = 'http://localhost:8000/api'; // Django backend URL
 
@@ -116,21 +119,54 @@ export const logoutUser = () => {
 
 // Anime APIs
 export const fetchAnimeList = async (): Promise<Anime[]> => {
-  try {
-    return await fetchRealAnimeData();
-  } catch (error) {
-    console.error('Error fetching anime list:', error);
-    return mockAnimeList;
+  if (USE_REAL_ANIME_DATA) {
+    try {
+      return await fetchRealAnimeData();
+    } catch (error) {
+      console.error('Error fetching anime list:', error);
+      return mockAnimeList;
+    }
   }
+  
+  return safeApiCall(
+    async () => {
+      const response = await api.get('/anime/');
+      return response.data;
+    },
+    mockAnimeList,
+    'Error fetching anime list:'
+  );
 };
 
 export const fetchAnimeById = async (id: number): Promise<Anime> => {
+  if (USE_REAL_ANIME_DATA) {
+    try {
+      const allAnime = await fetchRealAnimeData();
+      const anime = allAnime.find(a => a.id === id);
+      if (anime) return anime;
+    } catch (error) {
+      console.error(`Error fetching anime with id ${id}:`, error);
+    }
+  }
+  
   return safeApiCall(
     async () => {
       const response = await api.get(`/anime/${id}/`);
       return response.data;
     },
-    mockAnimeList.find(anime => anime.id === id) || mockAnimeList[0],
+    mockAnimeList.find(anime => anime.id === id) || {
+      id: id,
+      title: "Sample Anime",
+      synopsis: "This is a sample anime description.",
+      type: "TV",
+      episodes: 12,
+      year: 2023,
+      season: "Spring",
+      genres: ["Action"],
+      rating: 7.5,
+      image: "https://cdn.myanimelist.net/images/anime/1972/138231.jpg",
+      studios: ["Sample Studio"]
+    },
     `Error fetching anime with id ${id}:`
   );
 };
@@ -151,14 +187,24 @@ export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
     return [];
   }
   
-  try {
-    return await searchRealAnime(query);
-  } catch (error) {
-    console.error('Error searching anime:', error);
-    return mockAnimeList.filter(anime => 
-      anime.title.toLowerCase().includes(query.toLowerCase())
-    );
+  if (USE_REAL_ANIME_DATA) {
+    try {
+      return await searchRealAnime(query);
+    } catch (error) {
+      console.error('Error searching anime:', error);
+    }
   }
+  
+  return safeApiCall(
+    async () => {
+      const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
+      return response.data;
+    },
+    mockAnimeList.filter(anime => 
+      anime.title.toLowerCase().includes(query.toLowerCase())
+    ),
+    'Error searching anime:'
+  );
 };
 
 export const getAnimeRecommendations = async (
@@ -274,6 +320,15 @@ export const reportComment = async (commentId: number): Promise<void> => {
 };
 
 export const fetchTrendingAnime = async (): Promise<Anime[]> => {
+  if (USE_REAL_ANIME_DATA) {
+    try {
+      return await fetchRealTrendingAnime();
+    } catch (error) {
+      console.error('Error fetching trending anime:', error);
+      return mockTrendingAnime;
+    }
+  }
+  
   return safeApiCall(
     async () => {
       const response = await api.get('/anime/trending/');
