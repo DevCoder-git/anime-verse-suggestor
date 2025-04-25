@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Anime, Genre, Comment, Rating, CharacterData } from './types';
+import { Anime, Genre, Comment, Rating, CharacterData, UserProfile } from './types';
 import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters, fetchRealAnimeData, searchRealAnime, fetchRealTrendingAnime } from './mockData';
 
 // Toggle this to false to use real API calls instead of mock data for backend features
