@@ -1,7 +1,6 @@
-
 import axios, { AxiosError } from 'axios';
-import { Anime, Genre, UserProfile, Comment, Rating, CharacterData } from './types';
-import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters } from './mockData';
+import { Anime, Genre } from './types';
+import { mockAnimeList, mockTrendingAnime, mockGenres, mockComments, mockWatchlist, mockCharacters, fetchRealAnimeData, searchRealAnime } from './mockData';
 
 // Toggle this to false to use real API calls instead of mock data
 // Always default to true to ensure the application works without a backend
@@ -117,14 +116,12 @@ export const logoutUser = () => {
 
 // Anime APIs
 export const fetchAnimeList = async (): Promise<Anime[]> => {
-  return safeApiCall(
-    async () => {
-      const response = await api.get('/anime/');
-      return response.data;
-    },
-    mockAnimeList,
-    'Error fetching anime list:'
-  );
+  try {
+    return await fetchRealAnimeData();
+  } catch (error) {
+    console.error('Error fetching anime list:', error);
+    return mockAnimeList;
+  }
 };
 
 export const fetchAnimeById = async (id: number): Promise<Anime> => {
@@ -154,21 +151,14 @@ export const searchAnimeByQuery = async (query: string): Promise<Anime[]> => {
     return [];
   }
   
-  const normalizedQuery = query.toLowerCase().trim();
-  
-  return safeApiCall(
-    async () => {
-      const response = await api.get(`/anime/search/?q=${encodeURIComponent(query)}`);
-      return response.data;
-    },
-    mockAnimeList.filter(anime => 
-      anime.title.toLowerCase().includes(normalizedQuery) ||
-      anime.genres.some(genre => genre.toLowerCase().includes(normalizedQuery)) ||
-      (anime.synopsis && anime.synopsis.toLowerCase().includes(normalizedQuery)) ||
-      (anime.studios && anime.studios.some(studio => studio.toLowerCase().includes(normalizedQuery)))
-    ),
-    'Error searching anime:'
-  );
+  try {
+    return await searchRealAnime(query);
+  } catch (error) {
+    console.error('Error searching anime:', error);
+    return mockAnimeList.filter(anime => 
+      anime.title.toLowerCase().includes(query.toLowerCase())
+    );
+  }
 };
 
 export const getAnimeRecommendations = async (
