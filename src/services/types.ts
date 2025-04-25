@@ -42,7 +42,6 @@ export interface AuthState {
   error: string | null;
 }
 
-// Updated CharacterData interface with id property
 export interface CharacterData {
   id: number;
   name: string;
