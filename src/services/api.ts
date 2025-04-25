@@ -141,9 +141,25 @@ export const fetchAnimeList = async (): Promise<Anime[]> => {
 export const fetchAnimeById = async (id: number): Promise<Anime> => {
   if (USE_REAL_ANIME_DATA) {
     try {
+      // First look for the anime in our real data cache
       const allAnime = await fetchRealAnimeData();
       const anime = allAnime.find(a => a.id === id);
-      if (anime) return anime;
+      
+      if (anime) {
+        console.log(`Found anime with id ${id} in cache:`, anime.title);
+        return anime;
+      } else {
+        console.log(`Anime with id ${id} not found in cache, fetching individually...`);
+        // If not found in cache, try to fetch it individually
+        // This might not be needed with the current implementation but is a good fallback
+        const animeList = await fetchRealAnimeData();
+        // Try to find the anime again with the fresh data
+        const freshResult = animeList.find(a => a.id === id);
+        
+        if (freshResult) {
+          return freshResult;
+        }
+      }
     } catch (error) {
       console.error(`Error fetching anime with id ${id}:`, error);
     }
@@ -212,6 +228,87 @@ export const getAnimeRecommendations = async (
   selectedType: string = '',
   animeId: number = 0
 ): Promise<Anime[]> => {
+  const MAX_RECOMMENDATIONS = 15;
+  
+  if (USE_REAL_ANIME_DATA) {
+    try {
+      // Fetch all anime data first
+      const allAnime = await fetchRealAnimeData();
+      
+      // If animeId is provided, base recommendations on similar anime
+      if (animeId > 0) {
+        const sourceAnime = allAnime.find(anime => anime.id === animeId);
+        
+        if (sourceAnime) {
+          console.log(`Generating AI recommendations for anime: ${sourceAnime.title}`);
+          
+          // Calculate similarity scores based on genres, type, and rating
+          const scoredAnime = allAnime
+            .filter(anime => anime.id !== animeId) // Exclude the source anime
+            .map(anime => {
+              // Count matching genres
+              const matchingGenres = sourceAnime.genres.filter(genre => 
+                anime.genres.includes(genre)
+              ).length;
+              
+              // Boost score if type matches
+              const typeMatch = anime.type === sourceAnime.type ? 2 : 0;
+              
+              // Rating similarity (closer ratings get higher scores)
+              const ratingDiff = 10 - Math.abs(anime.rating - sourceAnime.rating);
+              
+              // Studio match bonus
+              const studioMatch = anime.studios.some(studio => 
+                sourceAnime.studios.includes(studio)
+              ) ? 3 : 0;
+              
+              // Year proximity bonus (newer anime within 3 years get a boost)
+              const yearProximity = Math.abs(anime.year - sourceAnime.year) <= 3 ? 1 : 0;
+              
+              // Calculate total similarity score
+              const similarityScore = 
+                (matchingGenres * 5) + typeMatch + (ratingDiff * 0.5) + studioMatch + yearProximity;
+                
+              return { anime, score: similarityScore };
+            })
+            .sort((a, b) => b.score - a.score)
+            .slice(0, MAX_RECOMMENDATIONS)
+            .map(item => item.anime);
+          
+          console.log(`Found ${scoredAnime.length} recommendations for ${sourceAnime.title}`);
+          return scoredAnime;
+        }
+      }
+      
+      // If we're filtering by genres and type
+      let filteredAnime = [...allAnime];
+      
+      // Filter by genres if selected
+      if (selectedGenres.length > 0) {
+        filteredAnime = filteredAnime.filter(anime => 
+          selectedGenres.every(selectedGenre => 
+            anime.genres.some(genre => 
+              genre.toLowerCase().includes(selectedGenre.toLowerCase())
+            )
+          )
+        );
+      }
+      
+      // Filter by type if selected
+      if (selectedType && selectedType !== 'all') {
+        filteredAnime = filteredAnime.filter(anime => anime.type === selectedType);
+      }
+      
+      // Sort by rating for best recommendations
+      filteredAnime.sort((a, b) => b.rating - a.rating);
+      
+      return filteredAnime.slice(0, MAX_RECOMMENDATIONS);
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
+    }
+  }
+  
+  // Fall back to original implementation
   return safeApiCall(
     async () => {
       let url = '/anime/recommendations/';

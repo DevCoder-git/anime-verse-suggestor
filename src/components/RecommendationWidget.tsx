@@ -25,6 +25,16 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({ animeId }) 
     enabled: !!animeId
   });
 
+  const { isLoading: isLoadingRecommendations, refetch: getRecommendations } = useQuery({
+    queryKey: ['recommendations', selectedGenres, selectedType],
+    queryFn: async () => {
+      const results = await getAnimeRecommendations(selectedGenres, selectedType);
+      setRecommendations(results);
+      return results;
+    },
+    enabled: false, // Don't run automatically, wait for user to click the button
+  });
+
   const handleGenreSelect = (genreId: string) => {
     setSelectedGenres(prev => 
       prev.includes(genreId)
@@ -37,11 +47,12 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({ animeId }) 
     setSelectedType(value);
   };
 
-  const handleGetRecommendations = async () => {
+  const handleGetRecommendations = () => {
     setHasSearched(true);
-    const results = await getAnimeRecommendations(selectedGenres, selectedType);
-    setRecommendations(results);
+    getRecommendations();
   };
+
+  const isLoading = isLoadingSimilar || isLoadingRecommendations;
 
   return (
     <div className="mb-10">
@@ -77,15 +88,16 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({ animeId }) 
               onClick={handleGetRecommendations}
               className="bg-anime-purple hover:bg-anime-purple/90 text-white"
               size="lg"
+              disabled={isLoadingRecommendations}
             >
               <Sparkles className="mr-2 h-4 w-4" />
-              Get Recommendations
+              {isLoadingRecommendations ? "Finding Anime..." : "Get AI Recommendations"}
             </Button>
           </div>
         </>
       )}
       
-      {isLoadingSimilar && animeId ? (
+      {isLoading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-anime-purple"></div>
         </div>
@@ -106,7 +118,7 @@ const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({ animeId }) 
             Discover Your Next Favorite Anime
           </h3>
           <p className="text-muted-foreground mb-6">
-            Select your preferences and click "Get Recommendations"
+            Our AI recommendation system will find the perfect anime based on your preferences
           </p>
         </div>
       )}
